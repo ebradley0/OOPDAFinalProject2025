@@ -11,41 +11,37 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
-public class CanvasPanel_P6 extends JPanel {
+public class CanvasPanel_Final extends JPanel {
     private final static int X_CORNER = 25;
     private final static int Y_CORNER = 25;
+    private final static int buffer = 25;
     // private final static int CANVAS_WIDTH = 400;
     // private final static int CANVAS_HEIGHT = 400;
     private final static int CANVAS_WIDTH = 800;
     private final static int CANVAS_HEIGHT = 800;
 
-    private List<Shape2D> shapesList;
+    private List<Shape2D> grid;
     private int frameNumber;
     private boolean isPaused = false;
+    private int gridSize = 16;
+    private int collumns = CANVAS_HEIGHT / gridSize;
+    private int rows = CANVAS_WIDTH / gridSize;
+    private int centerOffset = (gridSize) / (gridSize / 2);
 
-    public CanvasPanel_P6() {
+    public CanvasPanel_Final() {
         // Creating assorted shapes with various sizes and colors
-        shapesList = new java.util.ArrayList<>();
-        shapesList.add(new Circle2D());
-        shapesList.add(new Circle2D(6, 400, 400, 90, true, true, 1, 0, 5));
-        shapesList.add(new Rectangle2D());
-        shapesList.add(new Rectangle2D(7, 100, 500, 80, 45, true, true, 2, 5, 1));
-        shapesList.add(new Rectangle2D(4, 200, 200, 80, 45, true, true, 6, 2, -1));
-        shapesList.add(new Oval2D());
-        shapesList.add(new Oval2D(1, 300, 300, 20, 45, true, true, 3, -2, 0));
-        shapesList.add(new Oval2D(2, 400, 400, 200, 120, true, true, 9, 5, 0));
+        // Initial panel rendering
+        grid = new java.util.ArrayList<>();
 
-        // Create a blockhead from rectangles, circles and ovals
-        // color x y width height
-        shapesList.add(new Rectangle2D(2, 145, 50, 100, 140, true, false, 0, 0, 0));
-        shapesList.add(new Rectangle2D(7, 185, 120, 20, 20, true, false, 0, 0, 0));
-        // color x y d1 d2
-        shapesList.add(new Oval2D(6, 200, 90, 40, 20, true, false, 0, 0, 0));
-        shapesList.add(new Oval2D(6, 150, 90, 40, 20, true, false, 0, 0, 0));
-        shapesList.add(new Rectangle2D(0, 165, 150, 60, 20, true, false, 0, 0, 0));
-        // color x y diameter
-        shapesList.add(new Circle2D(3, 160, 93, 15 / 2, true, false, 0, 0, 0)); // Divides by 2 to get radius
-        shapesList.add(new Circle2D(3, 215, 93, 15 / 2, true, false, 0, 0, 0)); // Divides by 2 to get radius
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < collumns; j++) {
+                grid.add(
+                        new Rectangle2D(4, centerOffset + buffer + i * gridSize, centerOffset + buffer + j * gridSize,
+                                gridSize - 4, gridSize - 4, true, false, 0, 0, 0)); // Generate
+                // a
+
+            }
+        }
         // Callback for keyboard events
         this.setFocusable(true);
         this.addKeyListener(new myActionListener()); // Respond to keyboard events
@@ -69,9 +65,7 @@ public class CanvasPanel_P6 extends JPanel {
     }
 
     public void Simulate() {
-        for (Shape2D shape : shapesList) { // For each shape in the list, apply the move function()
-            shape.move(); // move the shape
-        }
+        // Loop stuff goes here
     }
 
     // This method is called by renderloop
@@ -90,8 +84,9 @@ public class CanvasPanel_P6 extends JPanel {
 
         // Need to make draw polymorphic and in a List
 
-        for (Shape2D shape : shapesList) {
-            shape.Draw(g);
+        // Init painting
+        for (Shape2D gridSlot : grid) {
+            gridSlot.Draw(g2);
         }
     }
 
