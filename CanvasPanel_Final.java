@@ -31,8 +31,8 @@ public class CanvasPanel_Final extends JPanel {
     private int centerOffset = (gridSize) / (gridSize / 2);
     private String direction = "UP"; // Initial direction of the snake
     Snake snake; // Snake object
-    private int frameDelay = 3;
-    private int frameCount = 0; // Frame count for the simulation
+    private int gameSpeed = 90;
+    Timer renderLoop;
 
     // Collision detection variables
     private CollisionDetector collisionDetector = new CollisionDetector(); // Collision detector object
@@ -65,10 +65,10 @@ public class CanvasPanel_Final extends JPanel {
         // At each tick the ActionListener that was registered via the lambda expression
         // will be invoked
         // lambda expression for ActionListener implements actionPerformed method
-        Timer renderLoop = new Timer(30, (ActionEvent ev) -> {
+        renderLoop = new Timer(gameSpeed, (ActionEvent ev) -> {
             if (!isPaused) { // if not paused, allow the frames to be updated and redrawn once the simulation
                              // is applied.
-                frameNumber++;
+                
                 Simulate();
                 repaint();
             }
@@ -78,11 +78,7 @@ public class CanvasPanel_Final extends JPanel {
     }
 
     public void Simulate() {
-        frameCount++;
-        if (frameCount < frameDelay) {
-            return; // Skip the simulation if the frame count is less than the frame delay
-        }
-        frameCount = 0; // Reset the frame count
+        
 
         if (apple == null) {
             generateApple(); // Generate a new apple if there is none
@@ -137,6 +133,21 @@ public class CanvasPanel_Final extends JPanel {
 
         }
 
+        // Check if the head is colliding with any of the snake segments, if it is, game over.
+
+      
+        for (int i = 2; i < snake.getSnakeParts().size(); i++)
+        {
+            if (collisionDetector.isColliding(snake.getSnakeParts().get(i), snake.getSnakeParts().get(0)))
+            {
+                System.out.println("Collission detected, game over!");
+                System.out.println("You got" + snake.getSnakeParts().size() + " points!");
+                renderLoop.stop();
+                
+            }
+        }
+        
+
     }
 
     // This method is called by renderloop
@@ -166,6 +177,10 @@ public class CanvasPanel_Final extends JPanel {
         if (apple != null) {
             apple.Draw(g2); // Draw the apple if it exists
         }
+
+        //Score rendering
+
+        g2.drawString("Points: " + (snake.getSnakeParts().size() - 1), 400, 20);
 
     }
 
@@ -199,7 +214,7 @@ public class CanvasPanel_Final extends JPanel {
             }
         }
 
-        apple = new Rectangle2D(5, grid[randX][randY].getXPos(), grid[randX][randY].getYPos(), 12, 12,
+        apple = new Rectangle2D(0, grid[randX][randY].getXPos(), grid[randX][randY].getYPos(), 12, 12,
                 true, false, 0, 0, 0); // Create a new apple at the random position
 
     }

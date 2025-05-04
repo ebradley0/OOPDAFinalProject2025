@@ -11,14 +11,14 @@ public class Snake {
         snakeParts = new ArrayList<>();
         direction = "RIGHT"; // Initial direction
         length = 1; // Initial length of the snake
-        snakeParts.add(new Rectangle2D(1, 0, 0, 16, 16, true, false, 0, 0, 0)); // Initial position of the snake
+        snakeParts.add(new Rectangle2D(1, 0, 0, 16, 16, true, true, 3, 0, 0)); // Initial position of the snake
     }
 
     public Snake(int xPos, int yPos) {
         snakeParts = new ArrayList<>();
         direction = "RIGHT"; // Initial direction
         length = 1; // Initial length of the snake
-        snakeParts.add(new Rectangle2D(1, xPos, yPos, 12, 12, true, false, 0, 0, 0)); // Initial position of the snake
+        snakeParts.add(new Rectangle2D(1, xPos, yPos, 12, 12, true, true, 3, 0, 0)); // Initial position of the snake
     }
 
     public void move(int xPos, int yPos) {
@@ -48,7 +48,7 @@ public class Snake {
     public void addSegment() {
 
         Rectangle2D tail = snakeParts.get(snakeParts.size() - 1); // Get the last segment (tail)
-        Rectangle2D newSegment = new Rectangle2D(1, tail.getXPos(), tail.getYPos(), 12, 12, true, false, 0, 0, 0); // Create
+        Rectangle2D newSegment = new Rectangle2D(1, tail.getXPos(), tail.getYPos(), 12, 12, true, true, 3, 0, 0); // Create
                                                                                                                    // a
                                                                                                                    // new
                                                                                                                    // segment
