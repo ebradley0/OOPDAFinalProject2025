@@ -9,6 +9,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CanvasPanel_Final extends JPanel {
@@ -19,29 +21,40 @@ public class CanvasPanel_Final extends JPanel {
     // private final static int CANVAS_HEIGHT = 400;
     private final static int CANVAS_WIDTH = 800;
     private final static int CANVAS_HEIGHT = 800;
-
-    private List<Shape2D> grid;
+    private Rectangle2D apple; // Apple object
+    private Shape2D[][] grid;
     private int frameNumber;
     private boolean isPaused = false;
     private int gridSize = 16;
     private int collumns = CANVAS_HEIGHT / gridSize;
     private int rows = CANVAS_WIDTH / gridSize;
     private int centerOffset = (gridSize) / (gridSize / 2);
+    private String direction = "UP"; // Initial direction of the snake
+    Snake snake; // Snake object
+    private int frameDelay = 3;
+    private int frameCount = 0; // Frame count for the simulation
+
+    // Collision detection variables
+    private CollisionDetector collisionDetector = new CollisionDetector(); // Collision detector object
 
     public CanvasPanel_Final() {
         // Creating assorted shapes with various sizes and colors
         // Initial panel rendering
-        grid = new java.util.ArrayList<>();
+        grid = new Shape2D[rows][collumns];
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < collumns; j++) {
-                grid.add(
-                        new Rectangle2D(4, centerOffset + buffer + i * gridSize, centerOffset + buffer + j * gridSize,
-                                gridSize - 4, gridSize - 4, true, false, 0, 0, 0)); // Generate
+                grid[i][j] = (new Rectangle2D(4, centerOffset + buffer + i * gridSize,
+                        centerOffset + buffer + j * gridSize,
+                        gridSize - 4, gridSize - 4, true, false, 0, 0, 0)); // Generate
                 // a
 
             }
         }
+
+        // Snake init
+        snake = new Snake(grid[0][0].getXPos(), grid[0][0].getYPos()); // Create a snake at the first grid slot
+
         // Callback for keyboard events
         this.setFocusable(true);
         this.addKeyListener(new myActionListener()); // Respond to keyboard events
@@ -65,7 +78,65 @@ public class CanvasPanel_Final extends JPanel {
     }
 
     public void Simulate() {
-        // Loop stuff goes here
+        frameCount++;
+        if (frameCount < frameDelay) {
+            return; // Skip the simulation if the frame count is less than the frame delay
+        }
+        frameCount = 0; // Reset the frame count
+
+        if (apple == null) {
+            generateApple(); // Generate a new apple if there is none
+        }
+
+        switch (direction) {
+            case "RIGHT":
+                if (snake.getXPos() >= grid[collumns - 1][0].getXPos()) {
+                    snake.move(grid[0][0].getXPos(), snake.getYPos()); // Wrap around to the left side of the grid
+                    break;
+                }
+                snake.move(snake.getXPos() + gridSize, snake.getYPos());
+
+                break;
+            case "LEFT":
+                if (snake.getXPos() <= grid[0][0].getXPos()) {
+                    snake.move(grid[collumns - 1][0].getXPos(), snake.getYPos()); // Wrap around to the left side of the
+                    break; // grid
+                }
+                snake.move(snake.getXPos() - gridSize, snake.getYPos());
+
+                break;
+            case "UP":
+                if (snake.getYPos() <= grid[0][0].getYPos()) {
+                    snake.move(snake.getXPos(), grid[0][rows - 1].getYPos()); // Wrap around to the bottom side of the
+                    break; // grid
+                }
+                snake.move(snake.getXPos(), snake.getYPos() - gridSize);
+
+                break;
+            case "DOWN":
+                if (snake.getYPos() >= grid[0][rows - 1].getYPos()) {
+                    snake.move(snake.getXPos(), grid[0][0].getYPos()); // Wrap around to the top side of the
+                    break; // grid
+                }
+                snake.move(snake.getXPos(), snake.getYPos() + gridSize);
+
+                break;
+
+            default:
+                break;
+
+        }
+
+        Rectangle2D head = snake.getSnakeParts().get(0); // Get the head of the snake
+
+        if (collisionDetector.isColliding(head, apple)) {
+            snake.addSegment(); // Add a new segment to the snake if it collides with the apple
+            apple = null; // Remove the apple after it has been eaten
+            System.out.println("Apple eaten!"); // Print a message to the console;
+            generateApple(); // Generate a new apple
+
+        }
+
     }
 
     // This method is called by renderloop
@@ -85,9 +156,17 @@ public class CanvasPanel_Final extends JPanel {
         // Need to make draw polymorphic and in a List
 
         // Init painting
-        for (Shape2D gridSlot : grid) {
-            gridSlot.Draw(g2);
+        for (Shape2D[] row : grid) { // For each row in the grid
+            for (Shape2D gridSlot : row) { // For each grid slot, draw a square.
+                gridSlot.Draw(g2);
+            }
         }
+        snake.render(g2); // Draw the snake
+
+        if (apple != null) {
+            apple.Draw(g2); // Draw the apple if it exists
+        }
+
     }
 
     public static int getCanvasWidth() {
@@ -106,20 +185,55 @@ public class CanvasPanel_Final extends JPanel {
         return Y_CORNER;
     }
 
+    public void generateApple() {
+        int randX = (int) (Math.random() * rows); // Random x position
+        int randY = (int) (Math.random() * collumns); // Random y position
+
+        // Check all snake segments to ensure the apple doesnt spawn on the snake.
+        ArrayList<Rectangle2D> snakeParts = snake.getSnakeParts(); // Get the snake parts
+        for (Rectangle2D part : snakeParts) {
+            if (part.getXPos() == grid[randX][randY].getXPos() && part.getYPos() == grid[randX][randY].getYPos()) {
+                // If the apple spawns on the snake, generate a new apple
+                generateApple();
+                return;
+            }
+        }
+
+        apple = new Rectangle2D(5, grid[randX][randY].getXPos(), grid[randX][randY].getYPos(), 12, 12,
+                true, false, 0, 0, 0); // Create a new apple at the random position
+
+    }
+
     public class myActionListener extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_UP:
-                    System.out.println("press up arrow");
+
+                    if (direction == "DOWN") {
+                        break;
+                    }
+                    direction = "UP"; // Set the direction to UP
                     break;
                 case KeyEvent.VK_DOWN:
-                    System.out.println("press down arrow");
+
+                    if (direction == "UP") {
+                        break;
+                    }
+                    direction = "DOWN"; // Set the direction to DOWN
                     break;
                 case KeyEvent.VK_LEFT:
-                    System.out.println("press left arrow");
+
+                    if (direction == "RIGHT") {
+                        break;
+                    }
+                    direction = "LEFT"; // Set the direction to LEFT
                     break;
                 case KeyEvent.VK_RIGHT:
-                    System.out.println("press right arrow");
+
+                    if (direction == "LEFT") {
+                        break;
+                    }
+                    direction = "RIGHT"; // Set the direction to RIGHT
                     break;
                 case KeyEvent.VK_SPACE: // Used for updating the pause state, which enables and disables the simulation.
 
