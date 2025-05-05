@@ -143,6 +143,7 @@ public class CanvasPanel_Final extends JPanel {
                 System.out.println("Collission detected, game over!");
                 System.out.println("You got" + snake.getSnakeParts().size() + " points!");
                 renderLoop.stop();
+                gameOverPrompt();
                 
             }
         }
@@ -161,7 +162,7 @@ public class CanvasPanel_Final extends JPanel {
         g.fillRect(0, 0, CANVAS_WIDTH + 2 * X_CORNER, CANVAS_HEIGHT + 2 * Y_CORNER); // draw the black border
 
         // Set canvas background to grey
-        g.setColor(Color.LIGHT_GRAY);
+        g.setColor(Color.BLACK);
         g.fillRect(X_CORNER, Y_CORNER, CANVAS_WIDTH, CANVAS_HEIGHT); // make the canvas white
 
         // Need to make draw polymorphic and in a List
@@ -267,5 +268,11 @@ public class CanvasPanel_Final extends JPanel {
         public void keyReleased(KeyEvent e) {
             System.out.println("released");
         }
+    }
+
+    public void gameOverPrompt()
+
+    {
+        JOptionPane.showMessageDialog(null, "Game over!");
     }
 }
