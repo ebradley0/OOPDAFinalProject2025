@@ -1,0 +1,141 @@
+@startuml
+
+class CanvasPanel_Final {
+    - int X_CORNER
+    - int Y_CORNER 
+    - int buffer 
+    - int CANVAS_WIDTH
+    - int CANVAS_HEIGHT
+    - Rectangle2D apple
+    - Shape2D[][] grid
+    - boolean isPaused
+    - int gridSize
+    - int collumns
+    - int rows
+    - int centerOffset
+    - String direction 
+    - Snake snake
+    - int gameSpeed 
+    -CollisionDetector collisionDetector
+
+    +void CanvasPanel_Final()
+    +void Simulate()
+    +void paintComponent(Graphics g)
+    +int getCanvasWidth()
+    +int getCanvasHeight()
+    +int getCanvasXBorder()
+    +int getCanvasYBorder()
+    +void generateApple()
+    +void gameoverPrompt()
+}
+
+class CollisionDetector {
+     + {static} boolean isColliding(Shape2D a, Shape2D b)
+     - {static} int getShapeWidth(Shape2D shape)
+     - {static} int getShapeHeight(Shape2D shape)
+
+    +CollisionDetector()
+    +boolean checkCollision(int xPos, int yPos, int width, int height)
+}
+
+class Snake {
+    - ArrayList<Rectangle2D> snakeParts
+    - String direction
+    - int length
+    + Snake()
+    + Snake(int xPos, int yPos)
+    + void move(int xPos, int yPos)
+    + void addSegment()
+    +void render(Graphics g)
+    +int getXPos()
+    +int getYPos()
+    + ArrayList<Rectangle2D> getSnakeParts()
+}
+
+
+abstract class Shape2D{
+    - int xPos
+    - int yPos
+    - xVelocity
+    - yVelocity
+    - int fillColorIndex
+    - int outlineColorIndex
+    - Color fillColor
+    - Color outLineColor
+    - boolean fill 
+    - boolean outline
+
+    +static final Color[] COLORS
+    + Shape2D()
+    + int getXPos()
+    + void setXPos(int xPos)
+    + int getYPos()
+    + void setYPos(int yPos)
+    + int getXVelocity()
+    + void setXVelocity(int xVelocity)
+    + int getYVelocity()
+    + void setYVelocity(int yVelocity)
+    + int getFillColorIndex()
+    + void setFillColorIndex(int fillColorIndex)
+    + int getOutlineColorIndex()
+    + void setOutlineColorIndex(int outlineColorIndex)
+    + Color getFillColor()
+    + void setFillColor(Color fillColor)
+    + Color getOutlineColor()
+    + void setOutlineColor(Color outlineColor)
+    + boolean isFill()
+    + void setFill(boolean fill)
+    + boolean isOutline()
+    + void setOutline(boolean outline)
+}
+
+class Circle2D {
+    - int radius 
+    + Circle2D()
+    + Circle2D(int fillColorIndex, int xPosition, int yPosition, int radius, boolean fill, boolean outline,
+            int outlineColorIndex, int xVelocity, int yVelocity)
+    + void Move()
+    + void setRadius(int radius)
+    + int getRadius()
+}
+
+
+class Rectangle2D {
+    - int length
+    - int width
+
+    + Rectangle2D()
+    + Rectangle2D(int fillColorIndex, int xPosition, int yPosition, int length, int width, boolean fill,
+            boolean outline, int outlineColorIndex, int xVelocity, int yVelocity)
+    + void Move()
+    + void Draw(Graphics g)
+    + void setWidth(int width)
+    + int getWidth()
+    + void setHeight(int height)
+    + int getHeight()
+}
+
+class Oval2D {
+    - int width
+    - int height
+    + Oval2D()
+    + Oval2D(int fillColorIndex, int xPosition, int yPosition, int width, int height, boolean fill,
+            boolean outline,
+            int outlineColorIndex, int xVelocity, int yVelocity)
+    + void Move()
+    + void Draw(Graphics g)
+
+}
+
+Shape2D <|-- Circle2D
+Shape2D <|-- Rectangle2D
+Shape2D <|-- Oval2D
+
+CanvasPanel_Final --> CollisionDetector
+CanvasPanel_Final --> Snake
+CanvasPanel_Final --> Rectangle2D
+Snake --> Rectangle2D
+
+
+
+@enduml

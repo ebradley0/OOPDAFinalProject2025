@@ -2,6 +2,36 @@ import java.awt.Graphics;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+/**
+ * 
+ * Snake class that stores all data for the snake in the game.
+ * 
+ * Constructor forms an arraylist of Rectangle2D objects that represent the
+ * snake itself.
+ * This design allows for ease of use when shifting the snake's direction via
+ * the move() method.
+ * 
+ * move method() takes in the x and y cordinates to move the head of the snake
+ * to. Each subsequeny segment is then moved to the position fo the one ahead of
+ * it.
+ * This is done by storing the cordinates of each segment, before moving the
+ * head. Each segment is then moved to the cordinates of the segment before it.
+ * 
+ * addSegment() method simply generates a new Rectangle2D object and adds it to
+ * the end of the snake.
+ * 
+ * render() method iterates through each of the segments, calling the draw
+ * method to render the snake visually on the players screen.
+ * 
+ * Getter methods are used to track the position of the head of the snake, as
+ * well as the total number of segments
+ * 
+ * @version 1
+ * @author Eric Bradley
+ * 
+ * 
+ */
+
 public class Snake {
     private ArrayList<Rectangle2D> snakeParts;
     private String direction;
@@ -49,13 +79,13 @@ public class Snake {
 
         Rectangle2D tail = snakeParts.get(snakeParts.size() - 1); // Get the last segment (tail)
         Rectangle2D newSegment = new Rectangle2D(1, tail.getXPos(), tail.getYPos(), 12, 12, true, true, 3, 0, 0); // Create
-                                                                                                                   // a
-                                                                                                                   // new
-                                                                                                                   // segment
-                                                                                                                   // at
-                                                                                                                   // the
-                                                                                                                   // tail's
-                                                                                                                   // position
+                                                                                                                  // a
+                                                                                                                  // new
+                                                                                                                  // segment
+                                                                                                                  // at
+                                                                                                                  // the
+                                                                                                                  // tail's
+                                                                                                                  // position
         snakeParts.add(newSegment); // Add the new segment to the snake
         length++; // Increase the length of the snake
     }

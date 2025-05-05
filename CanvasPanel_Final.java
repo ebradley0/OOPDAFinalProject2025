@@ -1,17 +1,25 @@
 
 /**
- * 2D CanvasPanel
+ * 2D CanvasPanel Final project for OOPDA2025
  * 
+ * Contains main game loop as well as rendering code to generate the visuals for the snake game.
+ * 
+ * Contains variables that define the border of the viewable area, as well as parameters to adjust the size of the grid. Adjusting gridSize results in changes to other essential variables, allowing the grid to be procedurally adjusted
+ * grid is stored in a 2D array for ease of access when the snake is moving.
+ * 
+ * Game runs the simulate() method which contains the main game logic. This includes checking for collisions, as well as user input to change the snakes direction.
+ * Handles the generation of the apple, if an apple is needed.
+ * 
+ * paintComponent() handles all of the rendering tasks for the game.
  *
- * @author (Prof R)
- * @version (v1.0 11-17-22)
+ * @author (Prof R) - Eric Bradley - Harrison Tran
+ * @version V2.0 - 2025
  */
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.Array;
+
 import java.util.ArrayList;
-import java.util.List;
 
 public class CanvasPanel_Final extends JPanel {
     private final static int X_CORNER = 25;
@@ -22,17 +30,16 @@ public class CanvasPanel_Final extends JPanel {
     private final static int CANVAS_WIDTH = 800;
     private final static int CANVAS_HEIGHT = 800;
     private Rectangle2D apple; // Apple object
-    private Shape2D[][] grid;
-    private int frameNumber;
+    private Shape2D[][] grid; // 2D grid array, acts as a mapping for the snake to snap to.
     private boolean isPaused = false;
-    private int gridSize = 16;
-    private int collumns = CANVAS_HEIGHT / gridSize;
-    private int rows = CANVAS_WIDTH / gridSize;
-    private int centerOffset = (gridSize) / (gridSize / 2);
+    private int gridSize = 16; // Size of each grid square
+    private int collumns = CANVAS_HEIGHT / gridSize; // Number of columns
+    private int rows = CANVAS_WIDTH / gridSize; // Number of rows
+    private int centerOffset = (gridSize) / (gridSize / 2); // Offset of grid to fit within border frame.
     private String direction = "UP"; // Initial direction of the snake
     Snake snake; // Snake object
-    private int gameSpeed = 90;
-    Timer renderLoop;
+    private int gameSpeed = 90; // Speed of game, high number means slower game.
+    Timer renderLoop; // Gives entire class access to render loop.
 
     // Collision detection variables
     private CollisionDetector collisionDetector = new CollisionDetector(); // Collision detector object
@@ -68,7 +75,7 @@ public class CanvasPanel_Final extends JPanel {
         renderLoop = new Timer(gameSpeed, (ActionEvent ev) -> {
             if (!isPaused) { // if not paused, allow the frames to be updated and redrawn once the simulation
                              // is applied.
-                
+
                 Simulate();
                 repaint();
             }
@@ -78,7 +85,6 @@ public class CanvasPanel_Final extends JPanel {
     }
 
     public void Simulate() {
-        
 
         if (apple == null) {
             generateApple(); // Generate a new apple if there is none
@@ -133,21 +139,24 @@ public class CanvasPanel_Final extends JPanel {
 
         }
 
-        // Check if the head is colliding with any of the snake segments, if it is, game over.
+        // Check if the head is colliding with any of the snake segments, if it is, game
+        // over.
 
-      
-        for (int i = 2; i < snake.getSnakeParts().size(); i++)
-        {
-            if (collisionDetector.isColliding(snake.getSnakeParts().get(i), snake.getSnakeParts().get(0)))
-            {
+        for (int i = 2; i < snake.getSnakeParts().size(); i++) {
+            if (collisionDetector.isColliding(snake.getSnakeParts().get(i), snake.getSnakeParts().get(0))) {
                 System.out.println("Collission detected, game over!");
                 System.out.println("You got" + snake.getSnakeParts().size() + " points!");
                 renderLoop.stop();
                 gameOverPrompt();
-                
+
             }
         }
-        
+        // Check to see if the player has filled each grid, meaning they've beat the
+        // game
+        if (snake.getSnakeParts().size() > rows * collumns) {
+            System.out.println("Grid filled, end game");
+            gameOverPrompt();
+        }
 
     }
 
@@ -179,7 +188,7 @@ public class CanvasPanel_Final extends JPanel {
             apple.Draw(g2); // Draw the apple if it exists
         }
 
-        //Score rendering
+        // Score rendering
 
         g2.drawString("Points: " + (snake.getSnakeParts().size() - 1), 400, 20);
 
@@ -202,8 +211,10 @@ public class CanvasPanel_Final extends JPanel {
     }
 
     public void generateApple() {
-        int randX = (int) (Math.random() * rows); // Random x position
-        int randY = (int) (Math.random() * collumns); // Random y position
+        int randX = (int) (Math.random() * rows); // Random x position, clamped to the grid size and rounded via int
+                                                  // casting
+        int randY = (int) (Math.random() * collumns); // Random y position, clamped to the grid size and rounded via int
+                                                      // casting
 
         // Check all snake segments to ensure the apple doesnt spawn on the snake.
         ArrayList<Rectangle2D> snakeParts = snake.getSnakeParts(); // Get the snake parts
@@ -273,6 +284,23 @@ public class CanvasPanel_Final extends JPanel {
     public void gameOverPrompt()
 
     {
-        JOptionPane.showMessageDialog(null, "Game over!");
+        Object[] options = { "Play Again", "Exit" };
+
+        int choice = JOptionPane.showOptionDialog(null,
+                "You got " + (snake.getSnakeParts().size() - 1) + " points!" + "\nDo you want to play again?",
+                "Game over!",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, options, options[1]); // Default to exiting
+
+        if (choice == JOptionPane.YES_OPTION) {
+            System.out.println("Playing again");
+            snake = new Snake(grid[0][0].getXPos(), grid[0][0].getYPos()); // Create a new snake at the first grid slot
+            apple = null; // Remove the apple
+            generateApple();
+            renderLoop.start(); // Restart the render loop
+        } else {
+            System.out.println("Exiting game");
+            System.exit(0); // Exit the game
+        }
     }
 }
